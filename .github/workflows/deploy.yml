@@ -25,15 +25,17 @@ jobs:
       - name: Write SSH Key
         run: |
           mkdir -p ~/.ssh
+          # Heredoc use karne se key ka format (newlines) sahi rehta hai
           cat <<EOF > id_rsa
           ${{ secrets.EC2_SSH_KEY }}
           EOF
           chmod 600 id_rsa
+          # Server ki identity verify karne ke liye
           ssh-keyscan -H 34.225.194.175 >> ~/.ssh/known_hosts
 
       - name: Run Ansible Playbook
         run: |
-          # Step A: Install Ansible and Docker Collection
+          # Step A: Install Ansible and Collections
           pip install ansible
           ansible-galaxy collection install community.docker
 
