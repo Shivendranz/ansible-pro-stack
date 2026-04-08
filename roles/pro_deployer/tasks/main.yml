@@ -1,32 +1,65 @@
 ---
-# 1. Directory setup
+# 1. Install Docker (Agar pehle se nahi hai)
+- name: Install Docker
+  become: yes
+  shell: curl -fsSL https://get.docker.com | sh
+  args:
+    creates: /usr/bin/docker
+
+# 2. Start Docker service
+- name: Start Docker
+  become: yes
+  service:
+    name: docker
+    state: started
+    enabled: true
+
+# 3. Ubuntu user ko docker group mein daalo (Permission fix)
+- name: Add ubuntu user to docker group
+  become: yes
+  user:
+    name: ubuntu
+    groups: docker
+    append: yes
+
+# 4. Ensure Docker plugin directory exists
+- name: Ensure cli-plugins directory exists
+  become: yes
+  file:
+    path: /usr/libexec/docker/cli-plugins
+    state: directory
+    mode: '0755'
+
+# 5. Install Docker Compose plugin
+- name: Install Docker Compose plugin
+  become: yes
+  get_url:
+    url: https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64
+    dest: /usr/libexec/docker/cli-plugins/docker-compose
+    mode: '0755'
+
+# 6. Create project directory
 - name: Create project directory
   file:
     path: "/home/ubuntu/pro-stack"
     state: directory
     mode: '0755'
 
-# 2. Docker Compose file deploy
+# 7. Deploy Docker Compose Template
 - name: Deploy Docker Compose Template
   template:
     src: docker-compose.yml.j2
     dest: "/home/ubuntu/pro-stack/docker-compose.yml"
 
-# 3. Nginx Config deploy
+# 8. Deploy Nginx Configuration
 - name: Deploy Nginx Configuration
   template:
     src: nginx.conf.j2
     dest: "/home/ubuntu/pro-stack/nginx.conf"
 
-# 4. Stop old containers (Optional but safe)
-- name: Clean old stack
-  community.docker.docker_compose_v2:
-    project_src: "/home/ubuntu/pro-stack"
-    state: absent
-
-# 5. Start the New Pro Stack
+# 9. Run containers (Reset connection helps group changes take effect)
 - name: Start the Pro Stack
-  community.docker.docker_compose_v2:
-    project_src: "/home/ubuntu/pro-stack"
-    state: present
-    pull: always
+  become: yes
+  shell: docker compose up -d --pull always
+  args:
+    chdir: "/home/ubuntu/pro-stack"
