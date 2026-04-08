@@ -12,21 +12,15 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3  # Updated to v3
         with:
-          # Yahan 'secrets.' lagana zaruri hai
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          username: shivendra01
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and Push Docker Image
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/micro-web-optimized:latest .
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/micro-web-optimized:latest
-
-      - name: Setup Ansible
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ansible
+          docker build -t shivendra01/micro-web-optimized:latest .
+          docker push shivendra01/micro-web-optimized:latest
 
       - name: Write SSH Key
         run: |
@@ -35,9 +29,10 @@ jobs:
 
       - name: Run Ansible Playbook
         run: |
+          # Install ansible directly in the runner
+          pip install ansible
           ansible-playbook -i inventory.ini full-cycle.yml \
           --private-key id_rsa \
           --vault-password-file .vault_pass \
           -e "ansible_ssh_common_args='-o StrictHostKeyChecking=no'" \
-          -e "docker_image=${{ secrets.DOCKERHUB_USERNAME }}/micro-web-optimized:latest"
-
+          -e "docker_image=shivendra01/micro-web-optimized:latest"
