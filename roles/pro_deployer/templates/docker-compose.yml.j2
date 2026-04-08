@@ -1,4 +1,5 @@
 version: '3.8'
+
 services:
   nginx-proxy:
     image: nginx:alpine
@@ -15,12 +16,11 @@ services:
     image: "{{ docker_image }}"
     expose:
       - "5000"
-  healthcheck:
+    healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/"]
       interval: 10s
       timeout: 5s
       retries: 3
-
     environment:
       - REDIS_HOST=redis-db
     restart: always
