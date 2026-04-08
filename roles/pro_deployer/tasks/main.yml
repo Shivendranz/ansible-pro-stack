@@ -1,0 +1,41 @@
+---
+# 1. Docker aur Python ki zaruri cheezein install karo
+- name: Install Docker Dependencies
+  apt:
+    name: [python3-pip, python3-docker, docker-compose]
+    state: present
+    update_cache: yes
+
+# 2. Permission Fix (Ab manually 'usermod' nahi chalana padega)
+- name: Add ubuntu user to docker group
+  user:
+    name: ubuntu
+    groups: docker
+    append: yes
+
+# 3. Project Directory banao
+- name: Create Pro Project Folder
+  file:
+    path: "/home/ubuntu/pro-stack"
+    state: directory
+
+# 4. Compose file wahan bhejo
+- name: Deploy Pro Compose Template
+  template:
+    src: docker-compose.yml.j2
+    dest: "/home/ubuntu/pro-stack/docker-compose.yml"
+
+# YE WALA TASK ZARUR CHECK KARO:
+- name: Deploy Nginx Config
+  template:
+    src: nginx.conf.j2
+    dest: "/home/ubuntu/pro-stack/nginx.conf"
+
+# 5. Stack ko "Fire" karo
+- name: Start the Pro Stack
+  docker_compose:
+    project_src: "/home/ubuntu/pro-stack"
+    state: present
+    pull: yes
+    recreate: always
+

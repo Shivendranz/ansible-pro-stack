@@ -1,0 +1,28 @@
+---
+- name: Build, Push and Deploy Loop
+  hosts: localhost
+  vars:
+    # Yahan image ka naam define kar do
+    docker_image: "shivendra01/micro-web-optimized:latest"
+  tasks:
+    - name: Build Docker Image
+      docker_image:
+        build:
+          path: ~/redis-microservice-project
+        name: "{{ docker_image }}"
+        source: build
+
+    - name: Push to Docker Hub
+      docker_image:
+        name: "{{ docker_image }}"
+        push: yes
+        source: local
+
+- name: Deploy to AWS
+  hosts: my_ec2_server
+  become: yes
+  vars:
+    # Yahan bhi wahi same variable define karo
+    docker_image: "shivendra01/micro-web-optimized:latest"
+  roles:
+    - pro_deployer

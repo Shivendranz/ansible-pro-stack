@@ -1,0 +1,40 @@
+version: '3.8'
+services:
+  nginx-proxy:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - web-app
+    networks:
+      - pro-net
+
+  web-app:
+    image: "{{ docker_image }}"
+    expose:
+      - "5000"
+  healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+    environment:
+      - REDIS_HOST=redis-db
+    restart: always
+    depends_on:
+      - redis-db
+    networks:
+      - pro-net
+
+  redis-db:
+    image: "redis:alpine"
+    restart: always
+    networks:
+      - pro-net
+
+networks:
+  pro-net:
+    driver: bridge
