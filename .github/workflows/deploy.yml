@@ -24,11 +24,12 @@ jobs:
 
       - name: Write SSH Key
         run: |
+          mkdir -p ~/.ssh
           cat <<EOF > id_rsa
           ${{ secrets.EC2_SSH_KEY }}
           EOF
           chmod 600 id_rsa
-         ssh-keyscan -H 34.225.194.175 >> ~/.ssh/known_hosts
+          ssh-keyscan -H 34.225.194.175 >> ~/.ssh/known_hosts
 
       - name: Run Ansible Playbook
         run: |
@@ -36,14 +37,14 @@ jobs:
           pip install ansible
           ansible-galaxy collection install community.docker
 
-          # Step B: Create temporary vault pass file from GitHub Secrets
+          # Step B: Create temporary vault pass file
           echo "${{ secrets.VAULT_PASSWORD }}" > .vault_pass
           chmod 600 .vault_pass
 
           # Step C: Execute Playbook
           ansible-playbook -i inventory.ini full-cycle.yml \
-          --private-key id_rsa \
-          -u ubuntu \
-          --vault-password-file .vault_pass \
-          -e "ansible_ssh_common_args='-o StrictHostKeyChecking=no'" \
-          -e "docker_image=shivendra01/micro-web-optimized:latest"
+            --private-key id_rsa \
+            -u ubuntu \
+            --vault-password-file .vault_pass \
+            -e "ansible_ssh_common_args='-o StrictHostKeyChecking=no'" \
+            -e "docker_image=shivendra01/micro-web-optimized:latest"
