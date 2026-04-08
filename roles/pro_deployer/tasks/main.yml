@@ -33,9 +33,7 @@
 
 # 5. Stack ko "Fire" karo
 - name: Start the Pro Stack
-  docker_compose:
+  community.docker.docker_compose_v2: # Pehle sirf docker_compose tha
     project_src: "/home/ubuntu/pro-stack"
     state: present
-    pull: yes
-    recreate: always
-
+    pull: always
