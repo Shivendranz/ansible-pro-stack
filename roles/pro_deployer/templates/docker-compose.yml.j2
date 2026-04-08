@@ -32,9 +32,14 @@ services:
   redis-db:
     image: "redis:alpine"
     restart: always
+    volumes:
+      - redis_data:/data  # <--- Ye data save rakhega
     networks:
       - pro-net
 
 networks:
   pro-net:
     driver: bridge
+
+volumes:
+  redis_data:             # <--- Permanent storage create hogi

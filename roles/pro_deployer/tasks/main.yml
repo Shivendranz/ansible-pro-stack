@@ -74,3 +74,21 @@
   shell: docker compose up -d --pull always
   args:
     chdir: "/home/ubuntu/pro-stack"
+
+# 8. Stop old containers
+- name: Stop existing containers
+  shell: docker compose down
+  args:
+    chdir: "/home/ubuntu/pro-stack"
+  ignore_errors: yes
+
+# 9. Start new containers
+- name: Start the Pro Stack
+  shell: docker compose up -d --pull always
+  args:
+    chdir: "/home/ubuntu/pro-stack"
+
+# 10. Server Cleanup (Zaroori Step)
+- name: Prune old Docker images to save space
+  shell: docker image prune -af --filter "until=24h"
+  # Ye un images ko delete karega jo 24 ghante se purani hain aur use nahi ho rahi
