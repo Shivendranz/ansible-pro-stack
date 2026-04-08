@@ -40,3 +40,4 @@ jobs:
           --vault-password-file .vault_pass \
           -e "ansible_ssh_common_args='-o StrictHostKeyChecking=no'" \
           -e "docker_image=${{ secrets.DOCKERHUB_USERNAME }}/micro-web-optimized:latest"
+
